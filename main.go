@@ -5,6 +5,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/yangyouwei/xiaoshuonew/bookinfo"
+	"github.com/yangyouwei/xiaoshuonew/chapterinfo"
 	"github.com/yangyouwei/xiaoshuonew/conflib"
 	"io/ioutil"
 	"sync"
@@ -28,6 +29,7 @@ var (
 //book info
 type Bookinfo struct {
 	Bookname string
+	BookId   int64
 	Chapterrule string
 }
 
@@ -95,6 +97,7 @@ func ChapterWorker(books chan string,wg *sync.WaitGroup)  {
 				//fmt.Println(b.Bookname,":",b.ChapterRules)
 				bookinfo.SaveBookInfo(&b,Db)
 				//获取章节信息，并存储
+				chapterinfo.GetChapterContent(b,Db)
 
 			}
 		}()

@@ -35,10 +35,10 @@ func SaveBookInfo(b *BookInfo,db *sql.DB)  {
 	res, err := stmt.Exec(b.Bookname,b.Bookcahtpernum,b.Sourcesfilename,b.ChapterRules)
 	check(err)
 
-	_, err = res.LastInsertId() //必须是自增id的才可以正确返回。
+	bookid, err := res.LastInsertId() //必须是自增id的才可以正确返回。
 	check(err)
 	defer stmt.Close()
-
+	b.Bookid = bookid
 	//idstr := fmt.Sprintf("%v", id)
 	//fmt.Println(idstr)
 	stmt.Close()
@@ -77,34 +77,3 @@ func GetBookRules(b *BookInfo){
 	}
 	b.ChapterRules = chapterfilter.RulesSort(rulesmap)
 }
-
-//func getrule(s string) (isok bool,r string) {
-//	//匹配  xxx第xx章xxx  类似章节名称
-//	isok1 , err := regexp.Match(cr,[]byte(s))
-//	if err != nil {
-//		fmt.Println(err)
-//	}
-//	//如果能匹配，则匹配更详细的规则作为该小说的规则
-//	if isok1 {
-//		//fmt.Println(s,":",cr)
-//		rules := *conflib.Chapterrules1.Rules
-//		for _,v := range rules {
-//
-//			isok2 , _ := regexp.Match(v,[]byte(s))
-//			if isok2 {
-//				//fmt.Println(v)
-//				return true, v
-//			}
-//		}
-//	}
-//	//如果都匹配不上，使用规则2中的规则。
-//	rules := *conflib.Chapterrules2.Rules
-//	for _,v := range rules {
-//		isok2 , _ := regexp.Match(v,[]byte(s))
-//		if isok2 {
-//			//fmt.Println(v)
-//			return true, v
-//		}
-//	}
-//	return false, ""
-//}
