@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/yangyouwei/xiaoshuonew/bookinfo"
 	"github.com/yangyouwei/xiaoshuonew/chapterfilter"
+	"github.com/yangyouwei/xiaoshuonew/conflib"
 	"io"
 	"os"
 	"regexp"
@@ -36,7 +37,7 @@ func GetChapterContent(b bookinfo.BookInfo,db *sql.DB)  {
 		if c == io.EOF {
 			return
 		}
-		isok = chapterfilter.IfMatch(b.ChapterRules,a)
+		isok = chapterfilter.IfMatch(conflib.HR.Hr,a)
 		isok = chapterfilter.IfMatch(b.ChapterRules,a)
 		if isok {
 			linesch <- a
@@ -79,14 +80,17 @@ func getchapter(lines chan []byte,b *bookinfo.BookInfo) *ChapterInof {
 	c.Bookid = b.Bookid
 	n := 0
 	for  {
+		//读取行
 		line,isclose := <- lines
 		if !isclose {
 			break
 		}
+		//判断章节
 		isok , err := regexp.Match(b.ChapterRules,line)
 		if err != nil {
 			fmt.Println(err)
 		}
+		//如果是章节 n+1 作为章节id
 		if isok {
 			n++
 			c.Chaptername = string(line)
@@ -102,24 +106,28 @@ func getchapter(lines chan []byte,b *bookinfo.BookInfo) *ChapterInof {
 			continue
 		}
 		//去掉广告
-		isok1 := strings.HasPrefix(string(line),"更多精彩，更多好书，尽在新奇书网—http://www.xqishu.com")
+		isok1 := strings.HasPrefix(string(line),conflib.Adrule_str.Adstring)
 		if isok1 {
-			isok , err := regexp.Match(`^(.*)(更多精彩，更多好书，尽在新奇书网—http://www.xqishu.com)$`,line)
+			isok , err := regexp.Match(conflib.Adrule_str.Rules1,line)  //删除广告行
 			if err != nil {
 				fmt.Println(err)
 			}
 			if isok {
 				continue
 			}
-			reg := regexp.MustCompile(`^(.*)(更多精彩，更多好书，尽在新奇书网—http://www.xqishu.com)(.+$)`)
+			reg := regexp.MustCompile(conflib.Adrule_str.Rules2)
 			result := reg.FindAllStringSubmatch(string(line),-1)
-			s := result[0][3]
+			s := result[0][1] + result[0][3]    //内容中有广告，去广告。保留内容
 			line = []byte(s)
 		}
 		//加标签去行首空白字符
 		c.Content = "&nbsp&nbsp&nbsp&nbsp" + fmtline(string(line)) + c.Content + "</br></br>"
+		//章节字数小于100 忽略。去重
+		c.Size = len(c.Content)/3
+		if c.Size < 100 {
+			continue
+		}
 	}
-	c.Size = len(c.Content)/3
 	return &c
 }
 

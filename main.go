@@ -98,7 +98,6 @@ func ChapterWorker(books chan string,wg *sync.WaitGroup)  {
 				bookinfo.SaveBookInfo(&b,Db)
 				//获取章节信息，并存储
 				chapterinfo.GetChapterContent(b,Db)
-
 			}
 		}()
 	}

@@ -32,7 +32,14 @@ type Headerrule struct {
 	Hr string
 }
 
+type Adrules struct {
+	Adstring string
+	Rules1	string
+	Rules2 string
+}
+
 var HR Headerrule
+var Adrule_str Adrules
 var Chapterrules1 Chapter1
 var Chapterrules2 Chapter2
 var Mysql_conf_str Mysql_conf
@@ -47,9 +54,32 @@ func init() {
 	HR.Headerrules(cfg,err)
 	Chapterrules1.Getchapterrules(cfg)
 	Chapterrules2.Getchapterrules2(cfg)
+	Adrule_str.GetAdRule(cfg,err)
 	Mysql_conf_str.Mysql_fun(cfg,err)
 	Main_str.main_fun(cfg,err)
+}
 
+func (this *Adrules)GetAdRule(c *goconfig.ConfigFile,err error)  {
+	r,err := c.GetValue("adrules","adstring")
+	if err != nil {
+		log.Fatalf("无法获取键值section（%s）：%s", "adrules", err)
+		panic(err)
+	}
+	this.Adstring = r
+
+	r,err = c.GetValue("adrules","rules1")
+	if err != nil {
+		log.Fatalf("无法获取键值section（%s）：%s", "adrules", err)
+		panic(err)
+	}
+	this.rules1 = r
+
+	r,err = c.GetValue("adrules","rules2")
+	if err != nil {
+		log.Fatalf("无法获取键值section（%s）：%s", "adrules", err)
+		panic(err)
+	}
+	this.rules2 = r
 }
 
 func (this *Chapter1) Getchapterrules(c *goconfig.ConfigFile) {
