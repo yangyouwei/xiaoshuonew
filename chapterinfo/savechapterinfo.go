@@ -70,16 +70,18 @@ func GetChapterContent(b bookinfo.BookInfo,db *sql.DB)  {
 }
 
 func getchapter(lines chan string,b *bookinfo.BookInfo,chapterch chan ChapterInof) {
+	tempchapter := ""
 	loop:
 	for {
-        c := ChapterInof{}
-        c.Bookid = b.Bookid
+		c := ChapterInof{}
+		c.Bookid = b.Bookid
 		for  {
 			//读取行
 			line,isclose := <- lines
 			if !isclose {
-				close(chapterch)
 				chapterch <- c
+				close(chapterch)
+				fmt.Println("finished")
 				return
 			}
 
@@ -87,11 +89,13 @@ func getchapter(lines chan string,b *bookinfo.BookInfo,chapterch chan ChapterIno
 			if err != nil {
 				fmt.Println(err)
 			}
+
 			if isok {
-				c.Chaptername = line
 				if c.Content == "" {
+					c.Chaptername = line
 					continue
 				}else {
+					tempchapter = line
 					break
 				}
 			}
@@ -101,14 +105,20 @@ func getchapter(lines chan string,b *bookinfo.BookInfo,chapterch chan ChapterIno
 				fmt.Println(err)
 			}
 			if isok {
-				c.Chaptername = string(line)
-				//fmt.Println(string(line))1
+				//fmt.Println(string(line))
 				if c.Content == "" {
+					c.Chaptername = line
 					continue
 				}else {
+					tempchapter = line
 					break
 				}
 			}
+			
+			if c.Chaptername == "" {
+				c.Chaptername = tempchapter
+			}
+			//fmt.Println(c.Chaptername)
 			//去空行
 			isok3 , err := regexp.Match(`^\s*$`,[]byte(line))
 			if err != nil {
@@ -146,22 +156,20 @@ func getchapter(lines chan string,b *bookinfo.BookInfo,chapterch chan ChapterIno
 		//	c.Content = ""
 		//	break
 		//}
-		if  !(c.Content == "") {
-			chapterch <- c
-			goto loop
-		}
+		chapterch <- c
+		goto loop
 	}
 }
 
 func fmtline(s string) string {
-	isok , err := regexp.Match(`^(.+)(\s+)(.+)$`,[]byte(s))
+	isok , err := regexp.Match(`^(\s+)(.+)$`,[]byte(s))
 	if err != nil {
 		fmt.Println(err)
 	}
 	if isok {
-		reg := regexp.MustCompile(`^(.+)(\s+)(.+$)`)
+		reg := regexp.MustCompile(`^(\s+)(.+$)`)
 		result := reg.FindAllStringSubmatch(s,-1)
-		s = result[0][1]+result[0][3]
+		s = result[0][2]
 	}
 	return s
 }
