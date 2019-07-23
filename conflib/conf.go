@@ -9,7 +9,6 @@ import (
 
 type mainS struct {
 	Concurrent	int
-	Mode string
 	Filepath string
 }
 
@@ -72,14 +71,14 @@ func (this *Adrules)GetAdRule(c *goconfig.ConfigFile,err error)  {
 		log.Fatalf("无法获取键值section（%s）：%s", "adrules", err)
 		panic(err)
 	}
-	this.rules1 = r
+	this.Rules1 = r
 
 	r,err = c.GetValue("adrules","rules2")
 	if err != nil {
 		log.Fatalf("无法获取键值section（%s）：%s", "adrules", err)
 		panic(err)
 	}
-	this.rules2 = r
+	this.Rules2 = r
 }
 
 func (this *Chapter1) Getchapterrules(c *goconfig.ConfigFile) {
@@ -128,12 +127,6 @@ func (this *mainS)main_fun(c *goconfig.ConfigFile,err error)  {
 	this.Filepath,err = filepath.Abs(a)
 	if err != nil {
 		log.Fatalf("%s）：%s,无效", "filepath", err)
-		panic(err)
-	}
-
-	this.Mode,err = c.GetValue("main","mode")
-	if err != nil {
-		log.Fatalf("%s）：%s,无效", "mode", err)
 		panic(err)
 	}
 }

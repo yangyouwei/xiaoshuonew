@@ -28,7 +28,7 @@ func GetBookInfo(bookpath string,b *BookInfo)  {
 }
 
 func SaveBookInfo(b *BookInfo,db *sql.DB)  {
-	fmt.Println(b)
+	//fmt.Println(b)
 	stmt, err := db.Prepare(`INSERT books ( booksName,chapters,sourcesfilename,regexRules) VALUES (?,?,?,?)`)
 	check(err)
 
@@ -70,7 +70,7 @@ func GetBookRules(b *BookInfo){
 			isok := chapterfilter.IfMatch(k,a)
 			if isok {
 				rulesmap[k] = v+1
-				fmt.Println(k,v)
+				//fmt.Println(k,v)
 			}
 
 		}

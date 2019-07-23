@@ -1,16 +1,16 @@
 [main]
 #并发
-concurrent=10
+concurrent=1
 #数据库连接
-addr=192.168.1.101
+addr=192.168.2.250
 port=3306
 username=root
-password=Yang@1008
-databasename=web3
-filepath=/Volumes/data/xiaoshuo/txt
+password=gaopeng
+databasename=web4
+filepath=/data/zip/unrarfull/
 
 [headerrule]
-rules=`\s*.*(序言|楔子|文案|引子|序|序章|自序|前言|起始|前传|序幕)\s*：*`
+rules=`^\s*(序言|楔子|引子|序|序章|自序|前言|起始|前传|序幕)\s*：*$`
 
 
 #^\s*.*第(\d+|[一二三四五六七八九十百千万]+)章.*[^。]*$`    匹配大多数的小说
