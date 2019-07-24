@@ -28,6 +28,9 @@ func GetBookInfo(bookpath string,b *BookInfo)  {
 }
 
 func SaveBookInfo(b *BookInfo,db *sql.DB)  {
+	if b.ChapterRules == "" {
+		return
+	}
 	//fmt.Println(b)
 	stmt, err := db.Prepare(`INSERT books ( booksName,chapters,sourcesfilename,regexRules) VALUES (?,?,?,?)`)
 	check(err)

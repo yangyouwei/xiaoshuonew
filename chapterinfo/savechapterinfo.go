@@ -59,9 +59,13 @@ func GetChapterContent(b bookinfo.BookInfo,db *sql.DB)  {
 		for {
 			a, _, c := br.ReadLine()
 			if c == io.EOF {
-				return
+				break
 			}
-			linesch <- string(a)
+			line := deletead(string(a))
+			if line == "" {
+				continue
+			}
+			linesch <- line
 		}
 		close(linesch)
 		wg.Done()
@@ -79,6 +83,7 @@ func getchapter(lines chan string,b *bookinfo.BookInfo,chapterch chan ChapterIno
 			//读取行
 			line,isclose := <- lines
 			if !isclose {
+				c.Size = len(c.Content)/3
 				chapterch <- c
 				close(chapterch)
 				fmt.Println("finished")
@@ -152,10 +157,10 @@ func getchapter(lines chan string,b *bookinfo.BookInfo,chapterch chan ChapterIno
 
 		}
 		c.Size = len(c.Content)/3
-		//if c.Size < 100 {
-		//	c.Content = ""
-		//	break
-		//}
+		if c.Size < 100 {
+			c.Content = ""
+			goto loop
+		}
 		chapterch <- c
 		goto loop
 	}
@@ -177,7 +182,10 @@ func fmtline(s string) string {
 func SaveChapter(c chan ChapterInof,db *sql.DB)  {
 	cn := 0
 	for  {
-		chater := <- c
+		chater, isok := <- c
+		if !isok  {
+			break
+		}
 		cn = cn + 1
 		chater.Chapterid = cn
 		n := chater.Bookid%int64(100)+int64(1)
