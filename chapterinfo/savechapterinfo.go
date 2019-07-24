@@ -166,6 +166,30 @@ func getchapter(lines chan string,b *bookinfo.BookInfo,chapterch chan ChapterIno
 	}
 }
 
+func deletead(s string) string {
+	isok1 := strings.HasPrefix(s,conflib.Adrule_str.Adstring)
+	if isok1 {
+		isok , err := regexp.Match(conflib.Adrule_str.Rules2,[]byte(s))
+		if err != nil {
+			fmt.Println(err)
+		}
+		if isok {
+			reg := regexp.MustCompile(conflib.Adrule_str.Rules2)
+			result := reg.FindAllStringSubmatch(s,-1)
+			return result[0][2]
+		}
+
+		isok2 , err := regexp.Match(conflib.Adrule_str.Rules1,[]byte(s))
+		if err != nil {
+			fmt.Println(err)
+		}
+		if isok2 {
+			return ""
+		}
+	}
+	return s
+}
+
 func fmtline(s string) string {
 	isok , err := regexp.Match(`^(\s+)(.+)$`,[]byte(s))
 	if err != nil {
