@@ -8,6 +8,7 @@ import (
 	"github.com/yangyouwei/xiaoshuonew/chapterfilter"
 	"github.com/yangyouwei/xiaoshuonew/conflib"
 	"io"
+	"log"
 	"os"
 	"regexp"
 	"strings"
@@ -216,27 +217,38 @@ func SaveChapter(c chan ChapterInof,db *sql.DB)  {
 		n := chater.Bookid%int64(100)+int64(1)
 		chapternum := "chapter_" + fmt.Sprint(n)
 
+		trytime := 0
+
+redo:
 		chpatertable := fmt.Sprintf("INSERT %v ( booksId, chapterName, size,content,chapterId) VALUES (?,?,?,?,?)", chapternum)
 		stmt, err := db.Prepare(chpatertable)
-		check(err)
+		if trytime == 3 {
+			continue
+		}
+		if err != nil {
+			log.Println(err)
+			trytime = trytime+1
+			goto redo
+		}
 
 		res, err := stmt.Exec(chater.Bookid,chater.Chaptername,chater.Size,chater.Content,chater.Chapterid)
-		check(err)
+		if err != nil {
+			log.Println(err)
+			trytime = trytime + 1
+			goto redo
+		}
 
 		_, err = res.LastInsertId() //必须是自增id的才可以正确返回。
-		check(err)
+		if err != nil {
+			log.Println(err)
+		}
 		defer stmt.Close()
 		stmt.Close()
 	}
 
 }
 
-func check(err error) {
-	if err != nil {
-		fmt.Println(err)
-		panic(err)
-	}
-}
+
 
 
 
